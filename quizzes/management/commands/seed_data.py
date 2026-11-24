@@ -21,7 +21,7 @@ from quizzes.models import (
 CONTENT = [
     {
         "name": "Introduction to Software Engineering",
-        "icon": "bi-mortarboard", "color": "#6366f1", "difficulty": "BEGINNER",
+        "icon": "bi-mortarboard", "color": "#3b5b8c", "difficulty": "BEGINNER",
         "description": "Foundations: what software engineering is, software characteristics, the SE layers, myths and ethics.",
         "questions": [
             ("Which statement best defines software engineering?", "Definition",
@@ -61,7 +61,7 @@ CONTENT = [
     },
     {
         "name": "Software Process Models",
-        "icon": "bi-diagram-3", "color": "#0ea5e9", "difficulty": "BEGINNER",
+        "icon": "bi-diagram-3", "color": "#2f7a78", "difficulty": "BEGINNER",
         "description": "Waterfall, incremental, prototyping, spiral, RAD and the V-model.",
         "questions": [
             ("In the Waterfall model, the phases are:", "Waterfall",
@@ -103,7 +103,7 @@ CONTENT = [
     },
     {
         "name": "Agile & Scrum",
-        "icon": "bi-lightning-charge", "color": "#f59e0b", "difficulty": "INTERMEDIATE",
+        "icon": "bi-lightning-charge", "color": "#a87b1f", "difficulty": "INTERMEDIATE",
         "description": "The Agile Manifesto, Scrum roles, artifacts and events, plus XP and Kanban.",
         "questions": [
             ("The Agile Manifesto values 'individuals and interactions over ___'.", "Agile Manifesto",
@@ -142,7 +142,7 @@ CONTENT = [
     },
     {
         "name": "Requirements Engineering",
-        "icon": "bi-card-checklist", "color": "#10b981", "difficulty": "BEGINNER",
+        "icon": "bi-card-checklist", "color": "#5f7a52", "difficulty": "BEGINNER",
         "description": "Functional vs non-functional requirements, elicitation, the SRS, validation and user stories.",
         "questions": [
             ("A functional requirement specifies:", "Functional vs non-functional",
@@ -180,7 +180,7 @@ CONTENT = [
     },
     {
         "name": "Software Design & Architecture",
-        "icon": "bi-bezier2", "color": "#8b5cf6", "difficulty": "INTERMEDIATE",
+        "icon": "bi-bezier2", "color": "#7a4a68", "difficulty": "INTERMEDIATE",
         "description": "Cohesion and coupling, architectural patterns, design patterns and the SOLID principles.",
         "questions": [
             ("High cohesion within a module means:", "Cohesion",
@@ -224,7 +224,7 @@ CONTENT = [
     },
     {
         "name": "UML & System Modeling",
-        "icon": "bi-diagram-2", "color": "#ec4899", "difficulty": "INTERMEDIATE",
+        "icon": "bi-diagram-2", "color": "#a3493a", "difficulty": "INTERMEDIATE",
         "description": "Use case, class, sequence, activity and state diagrams and their notation.",
         "questions": [
             ("A Use Case diagram primarily models:", "Use case diagram",
@@ -259,7 +259,7 @@ CONTENT = [
     },
     {
         "name": "Software Testing",
-        "icon": "bi-bug", "color": "#ef4444", "difficulty": "INTERMEDIATE",
+        "icon": "bi-bug", "color": "#b5562d", "difficulty": "INTERMEDIATE",
         "description": "Verification vs validation, test levels, black/white-box, test design, TDD and regression.",
         "questions": [
             ("Verification answers the question:", "V&V",
@@ -310,7 +310,7 @@ CONTENT = [
     },
     {
         "name": "Software Quality & Maintenance",
-        "icon": "bi-patch-check", "color": "#14b8a6", "difficulty": "INTERMEDIATE",
+        "icon": "bi-patch-check", "color": "#4f6d5e", "difficulty": "INTERMEDIATE",
         "description": "Quality assurance vs control, maintenance types, refactoring, technical debt and metrics.",
         "questions": [
             ("Quality Assurance (QA) is mainly:", "QA vs QC",
@@ -352,7 +352,7 @@ CONTENT = [
     },
     {
         "name": "Project Management & Estimation",
-        "icon": "bi-kanban", "color": "#f97316", "difficulty": "ADVANCED",
+        "icon": "bi-kanban", "color": "#8a5a2b", "difficulty": "ADVANCED",
         "description": "Estimation (COCOMO, function points), scheduling, the critical path and risk management.",
         "questions": [
             ("COCOMO is a model used for:", "Estimation",
@@ -393,7 +393,7 @@ CONTENT = [
     },
     {
         "name": "Configuration Management & DevOps",
-        "icon": "bi-git", "color": "#3b82f6", "difficulty": "ADVANCED",
+        "icon": "bi-git", "color": "#4a6378", "difficulty": "ADVANCED",
         "description": "Version control, branching, CI/CD, baselines and DevOps culture.",
         "questions": [
             ("The primary purpose of version control (e.g., Git) is to:", "Version control",

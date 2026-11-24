@@ -54,7 +54,7 @@ class Topic(models.Model):
         help_text="Bootstrap Icon class, e.g. bi-bug.",
     )
     color = models.CharField(
-        max_length=20, default="#6366f1", help_text="Accent colour (hex)."
+        max_length=20, default="#3b5b8c", help_text="Accent colour (hex)."
     )
     order = models.PositiveIntegerField(default=0)
 
@@ -216,6 +216,14 @@ class Attempt(models.Model):
         if self.completed_at:
             return int((self.completed_at - self.started_at).total_seconds())
         return None
+
+    @property
+    def duration_display(self):
+        """e.g. "4 min 05 s"; None while the attempt is still in progress."""
+        s = self.duration_seconds
+        if s is None:
+            return None
+        return f"{s // 60} min {s % 60:02d} s" if s >= 60 else f"{s} s"
 
     def __str__(self):
         return f"{self.student.username} - {self.quiz.title} ({self.percentage}%)"

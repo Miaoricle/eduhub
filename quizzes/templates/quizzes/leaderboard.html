@@ -1,7 +1,7 @@
 {% extends "quizzes/base.html" %}
 {% block title %}Leaderboard - EduHub{% endblock %}
 {% block content %}
-<h3 class="section-title mb-1"><i class="bi bi-trophy-fill" style="color:#f59e0b"></i> Leaderboard</h3>
+<h1 class="h3 section-title mb-1">Leaderboard</h1>
 <p class="text-muted mb-4">Points are your best score on each quiz added together, so every quiz is worth up to 100. Retaking a quiz can raise your score on it, but can't be repeated for extra points.</p>
 
 <div class="card p-2">
@@ -11,19 +11,15 @@
       {% for row in rows %}{% with s=row.student %}
         <tr>
           <td class="text-center">
-            <div class="rank-badge mx-auto {% if forloop.counter == 1 %}rank-1{% elif forloop.counter == 2 %}rank-2{% elif forloop.counter == 3 %}rank-3{% else %}bg-light{% endif %}">
-              {{ forloop.counter }}
-            </div>
+            <span class="rank {% if forloop.counter <= 3 %}top{% endif %}">{{ forloop.counter }}</span>
           </td>
-          <td class="fw-semibold">{{ s.get_full_name|default:s.username }}
-            {% if forloop.counter == 1 %}<i class="bi bi-trophy-fill" style="color:#f59e0b"></i>{% endif %}
-          </td>
+          <td class="fw-bold">{{ s.get_full_name|default:s.username }}{% if s == user %} <span class="text-muted small">(you)</span>{% endif %}</td>
           <td class="text-center">{{ row.quizzes }}</td>
           <td class="text-center">{{ row.average }}%</td>
-          <td class="text-end fw-bold" style="color:var(--brand-1)">{{ row.points }}</td>
+          <td class="text-end fw-bold">{{ row.points }}</td>
         </tr>{% endwith %}
       {% empty %}
-        <tr><td colspan="5" class="text-muted text-center py-4">No scores yet. Be the first on the board!</td></tr>
+        <tr><td colspan="5" class="text-muted text-center py-4">No finished quizzes yet.</td></tr>
       {% endfor %}
     </tbody>
   </table>

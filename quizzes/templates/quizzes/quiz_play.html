@@ -22,7 +22,7 @@
 
       {% for q in questions %}
         <div class="q-card card p-4 p-md-5" data-index="{{ forloop.counter0 }}" style="{% if not forloop.first %}display:none{% endif %}">
-          {% if q.subtopic %}<div class="small fw-semibold mb-1" style="color:var(--brand-1)">{{ q.subtopic }}</div>{% endif %}
+          {% if q.subtopic %}<div class="small fw-semibold mb-1">{{ q.subtopic }}</div>{% endif %}
           <h5 class="mb-4">{{ forloop.counter }}. {{ q.text }}</h5>
           {% for c in q.choices.all %}
             <label class="option" data-qid="{{ q.id }}">
@@ -35,9 +35,9 @@
       {% endfor %}
 
       <div class="d-flex justify-content-between mt-4">
-        <button type="button" class="btn-ghost btn" id="prevBtn" disabled><i class="bi bi-arrow-left"></i> Back</button>
-        <button type="button" class="btn-grad btn" id="nextBtn">Next <i class="bi bi-arrow-right"></i></button>
-        <button type="submit" class="btn-grad btn" id="submitBtn" style="display:none"><i class="bi bi-check2-circle"></i> Submit quiz</button>
+        <button type="button" class="btn-line btn" id="prevBtn" disabled><i class="bi bi-arrow-left"></i> Back</button>
+        <button type="button" class="btn-ink btn" id="nextBtn">Next <i class="bi bi-arrow-right"></i></button>
+        <button type="submit" class="btn-ink btn" id="submitBtn" style="display:none"><i class="bi bi-check2-circle"></i> Submit quiz</button>
       </div>
     </form>
   </div>

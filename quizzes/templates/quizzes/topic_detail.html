@@ -13,7 +13,7 @@
 <div class="row g-3 mt-1">
   {% for q in topic.published_quizzes %}
     <div class="col-lg-4 col-md-6">
-      <div class="card lift h-100 p-4">
+      <div class="card h-100 p-4">
         <div class="d-flex justify-content-between mb-2">
           <span class="diff-pill bg-{{ q.difficulty_color }}-subtle text-{{ q.difficulty_color }}">{{ q.get_difficulty_display }}</span>
           <small class="text-muted"><i class="bi bi-patch-question"></i> {{ q.question_count }} Q</small>
@@ -22,7 +22,7 @@
         <p class="text-muted small flex-grow-1">{{ q.description|truncatewords:18 }}</p>
         <div class="d-flex justify-content-between align-items-center">
           <small class="text-muted"><i class="bi bi-clock"></i> {{ q.time_limit_minutes }} min</small>
-          <a href="{% url 'quiz_detail' q.pk %}" class="btn-grad btn btn-sm">Start</a>
+          <a href="{% url 'quiz_detail' q.pk %}" class="btn-ink btn btn-sm">Start</a>
         </div>
       </div>
     </div>

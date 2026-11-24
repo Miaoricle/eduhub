@@ -1,89 +1,87 @@
-# EduHub - Interactive Software Engineering Quiz Platform
+# EduHub
 
-A Django e-learning web app built for **UniKL ISB46803 - Selected Topics in Software Engineering**.
-Students take interactive, auto-graded quizzes across every core Software Engineering topic;
-lecturers author quizzes; and admins monitor the platform from a charts dashboard.
+[![CI](https://github.com/Miaoricle/eduhub/actions/workflows/ci.yml/badge.svg)](https://github.com/Miaoricle/eduhub/actions/workflows/ci.yml)
 
-Built with Django's **Model-Template-View (MTV)** architecture on a **SQLite** database.
+A Django quiz platform for Software Engineering students. Students take timed, auto-marked quizzes and see an explanation for every answer. Lecturers write the questions. Admins get an overview of how the platform is used.
 
----
+I first built it for **ISB46803 Selected Topics in Software Engineering** at UniKL MIIT. This version reworks it: it fixes the security and correctness problems listed below, adds a test suite, and replaces the original design.
 
-## Features by role
+![Home page with a sample question](docs/home.png)
 
-| Role | What they can do |
-|------|------------------|
-| **Student** | Browse 10 SE topics, take interactive quizzes (live timer, progress bar, one question at a time), get an animated score with full answer explanations, track history, climb the leaderboard |
-| **Lecturer** | Create/edit quizzes, add, edit and delete questions with four choices, see attempt counts per quiz |
-| **Admin** | Dashboard with Chart.js analytics (attempts per day, attempts per topic), totals, recent activity, and full CRUD via Django admin |
+| Taking a quiz | Result with explanations |
+| --- | --- |
+| ![Quiz player](docs/quiz.png) | ![Result page](docs/result.png) |
 
-**Question bank:** 10 topics · 10 quizzes · **71 questions**, covering Introduction to SE, Process Models,
-Agile & Scrum, Requirements Engineering, Design & Architecture, UML, Testing, Quality & Maintenance,
-Project Management & Estimation, and Configuration Management & DevOps.
+## What it does
 
-**Highlights:** server-side authoritative grading, interactive quiz player (timer auto-submit, smooth
-navigation, selectable option cards), animated circular score ring, per-question review with explanations,
-a leaderboard, and role-based access control.
+| Role | Can |
+| --- | --- |
+| **Student** | Take quizzes one question at a time with a countdown, see the score and an explanation for every answer, track history, appear on the leaderboard |
+| **Lecturer** | Create quizzes (drafts until published), add, edit and delete questions with 2–4 options, see students' attempts and their answers |
+| **Admin** | Overview with totals, average score, late submissions, attempts per day and per topic; full CRUD and role management in Django admin |
 
----
+The question bank has 10 topics, 10 quizzes and 71 questions with explanations. It covers SE fundamentals, process models, Agile and Scrum, requirements, design and architecture, UML, testing, quality and maintenance, project management and estimation, and configuration management and DevOps.
 
-## How to run
+## Run it
 
-> Requires Python 3.10+ (tested on 3.14). Run all commands from this folder.
-
-```powershell
-python -m venv venv
-venv\Scripts\activate              # Windows
+```bash
+python -m venv .venv
+. .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 python manage.py migrate
-python manage.py seed_data         # loads all SE topics + questions + demo users
+python manage.py seed_data    # question bank + demo accounts
 python manage.py runserver
 ```
 
-Open **http://127.0.0.1:8000/**  (in VS Code, press **F5 → "EduHub: Run server"**).
-
-### Demo login credentials
+Then open http://127.0.0.1:8000. The demo accounts are created by `seed_data`. Use them for local testing only:
 
 | Role | Username | Password |
-|------|----------|----------|
+| --- | --- | --- |
 | Admin | `admin` | `admin123` |
 | Lecturer | `lecturer` | `teach123` |
-| Student | `student` | `learn123` |
+| Student | `student` | `learn123` (also `alice`, `bob`, `carol`) |
 
-Extra students (populate the leaderboard): `alice`, `bob`, `carol` - all `learn123`.
+`python manage.py seed_data --fresh` resets the quiz data.
 
-Reset demo data anytime: `python manage.py seed_data --fresh`.
+For anything beyond your own machine, set `DJANGO_DEBUG=0`, `DJANGO_SECRET_KEY` and `DJANGO_ALLOWED_HOSTS`. With debug off, the app refuses to start without a secret key.
 
----
+## What changed from the coursework version
 
-## Project structure (Model-Template-View)
+These were real problems in the original, and each fix has a test in [`quizzes/tests`](quizzes/tests/test_quiz_flow.py):
+
+- **Anyone could register as a lecturer.** The sign-up form had a role dropdown, so a student could give themselves quiz-editing rights. Sign-up now always creates a student. Lecturers are promoted by an admin.
+- **The timer could be bypassed.** The time taken was sent by the browser, the limit only existed in JavaScript, and a refresh restarted the clock. Now an attempt starts on the server when the quiz opens, and a refresh resumes the same attempt with the same deadline. Submissions after the limit plus a 30-second grace period are recorded but flagged as late.
+- **The leaderboard could be farmed.** It added up raw scores, so retaking one easy quiz twenty times beat doing every quiz once. It now adds each student's best percentage per quiz, so every quiz is worth at most 100.
+- **Editing a question rewrote history.** Choices were deleted and recreated, so past attempts lost track of which option a student had picked. Choices are now updated in place.
+- **A question could have no correct answer,** for example if C was marked correct but left empty. The form now rejects that, and duplicate options too.
+- **The admin's "average score" averaged raw points** across quizzes of different lengths. It's now an average percentage.
+- **Smaller things:** submitting twice no longer creates a duplicate attempt, drafts are hidden from students, quiz authors can open their students' results, and the secret key moved out of the code into environment variables.
+
+## How it's built
+
+- **Django 6** with the standard Model–Template–View structure and SQLite.
+- **Server-side marking.** Choices are checked against the question they belong to, so a forged form can't submit another question's correct option.
+- **Attempts as a small state machine.** An attempt is *in progress* until it's submitted. Every statistic uses `Attempt.objects.completed()`, so abandoned attempts don't count.
+- **Bootstrap 5** for layout, with a custom stylesheet ([`style.css`](quizzes/static/quizzes/style.css)): paper and ink colours, Source Serif 4 and Atkinson Hyperlegible type, and a highlighter mark on the selected answer.
 
 ```
-EduHub/
-├─ manage.py
-├─ requirements.txt
-├─ eduhub/                 # project configuration
-│  ├─ settings.py          # AUTH_USER_MODEL = quizzes.User, SQLite, timezone
-│  └─ urls.py              # routes + built-in login/logout
-└─ quizzes/                # the application
-   ├─ models.py            # MODEL  -> User, Topic, Quiz, Question, Choice, Attempt, Answer
-   ├─ views.py             # VIEW   -> routing, role checks, server-side grading
-   ├─ forms.py             # registration / quiz / question forms
-   ├─ urls.py              # use-case-to-view routing
-   ├─ admin.py             # Django admin (Admin role CRUD)
-   ├─ templates/quizzes/   # TEMPLATE -> 16 Bootstrap + custom-CSS pages
-   ├─ static/quizzes/      # the EduHub design system (style.css)
-   └─ management/commands/seed_data.py   # the Software Engineering question bank
+eduhub/            settings (reads DJANGO_* environment variables), urls
+quizzes/
+  models.py        User (roles), Topic, Quiz, Question, Choice, Attempt, Answer
+  views.py         per-role views, server-side timer and marking, leaderboard
+  forms.py         sign-up, quiz and question forms with validation
+  tests/           end-to-end tests through Django's test client
+  management/commands/seed_data.py   the question bank and demo data
 ```
 
-## Data model relationships (for the UML class diagram)
+## Tests
 
-- **Inheritance** - `User` extends Django's `AbstractUser`.
-- **Aggregation** - `Topic` groups many `Quiz`zes.
-- **Composition** - `Quiz` owns `Question`s, `Question` owns `Choice`s, `Attempt` owns `Answer`s.
-- **Association** - `Attempt` links a Student (`User`) and a `Quiz`.
+```bash
+python manage.py test
+```
 
----
+19 tests drive the app through HTTP as each role would. They cover permissions, marking, the server-side timer (using a frozen clock), leaderboard rules, question editing and that every page renders. CI also checks for missing migrations, runs the seed command on a fresh database, and confirms production settings won't start without a secret key.
 
-## Tech stack
+## License
 
-Python · Django 6 · SQLite · Bootstrap 5 · custom CSS design system · Chart.js · Bootstrap Icons · Google Fonts
+MIT

@@ -261,3 +261,23 @@ class PageSmokeTests(QuizFixture):
         self.client.logout()
         for name in ["home", "login", "register"]:
             self.assertEqual(self.client.get(reverse(name)).status_code, 200, name)
+
+
+class TopicOrderTests(TestCase):
+    def test_topics_follow_the_syllabus_order_not_the_alphabet(self):
+        Topic.objects.create(name="Zebra basics", order=0)
+        Topic.objects.create(name="Agile", order=1)
+        r = self.client.get(reverse("home"))
+        self.assertEqual([t.name for t in r.context["topics"]], ["Zebra basics", "Agile"])
+
+
+class TemplateStructureTests(QuizFixture):
+    def test_page_titles_are_plain_text(self):
+        """Guards against markup leaking into <title> (a misplaced block once put a table there)."""
+        import re
+
+        self.client.force_login(self.lecturer)
+        html = self.client.get(reverse("lecturer_dashboard")).content.decode()
+        title = re.search(r"<title>(.*?)</title>", html, re.S).group(1)
+        self.assertNotIn("<", title)
+        self.assertEqual(html.count("Latest attempts on your quizzes"), 1)

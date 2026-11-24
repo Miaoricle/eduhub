@@ -1,57 +1,56 @@
 {% extends "quizzes/base.html" %}
 {% block content %}
-<section class="hero p-5 mb-5 fade-up">
-  <div class="blob"></div>
-  <div class="row align-items-center position-relative">
-    <div class="col-lg-7">
-      <span class="badge bg-light text-dark mb-3"><i class="bi bi-stars"></i> Software Engineering, gamified</span>
-      <h1 class="display-5 fw-bold mb-3">Level up your <br>Software Engineering skills.</h1>
-      <p class="lead mb-4" style="max-width:560px;">Interactive quizzes across every core SE topic - from
-        process models and Agile to design patterns, testing and DevOps. Instant scoring, explanations,
-        and a leaderboard to keep you sharp.</p>
-      {% if not user.is_authenticated %}
-        <a href="{% url 'register' %}" class="btn-grad btn btn-lg me-2">Start learning free</a>
-        <a href="{% url 'login' %}" class="btn btn-lg btn-outline-light rounded-pill px-4">Login</a>
-      {% else %}
-        <a href="{% url 'dashboard' %}" class="btn-grad btn btn-lg">Go to dashboard</a>
+<section class="intro row g-5 align-items-center mb-5">
+  <div class="col-lg-6">
+    <p class="eyebrow mb-2">Software Engineering revision</p>
+    <h1 class="mb-3">Practise Software Engineering one question at a time.</h1>
+    <p class="lede mb-4">
+      {{ quiz_count }} timed quizzes and {{ question_count }} questions across {{ topic_count }} topics, from process
+      models and Scrum to UML, testing and DevOps. Every answer is marked on submit, with an explanation of why.
+    </p>
+    {% if user.is_authenticated %}
+      <a href="{% url 'dashboard' %}" class="btn btn-ink btn-lg">Go to your dashboard</a>
+    {% else %}
+      <a href="{% url 'register' %}" class="btn btn-ink btn-lg me-2">Create a student account</a>
+      <a href="{% url 'login' %}" class="btn btn-line btn-lg">Log in</a>
+    {% endif %}
+  </div>
+
+  {% if sample %}
+  <div class="col-lg-6">
+    <div class="sample-q">
+      <p class="small text-muted mb-1">{{ sample.quiz.topic.name }}{% if sample.subtopic %} · {{ sample.subtopic }}{% endif %}</p>
+      <p class="h5 mb-3">{{ sample.text }}</p>
+      {% for c in sample.choices.all %}
+        <div class="option {% if c.is_correct %}selected{% endif %}" aria-hidden="true">
+          <span class="badge-letter">{% cycle 'A' 'B' 'C' 'D' %}</span><span>{{ c.text }}</span>
+        </div>
+      {% endfor %}
+      {% if sample.explanation %}
+        <p class="explain small mb-0 mt-3"><strong>Why:</strong> {{ sample.explanation }}</p>
       {% endif %}
     </div>
-    <div class="col-lg-5 text-center d-none d-lg-block position-relative">
-      <i class="bi bi-controller" style="font-size:8rem;opacity:.9;"></i>
-    </div>
   </div>
+  {% endif %}
 </section>
 
-<div class="row g-3 mb-5 text-center">
-  <div class="col-md-4"><div class="stat-card lift"><div class="stat-num" style="color:var(--brand-1)">{{ topic_count }}</div><div class="text-muted">SE Topics</div></div></div>
-  <div class="col-md-4"><div class="stat-card lift"><div class="stat-num" style="color:var(--brand-2)">{{ quiz_count }}</div><div class="text-muted">Quizzes</div></div></div>
-  <div class="col-md-4"><div class="stat-card lift"><div class="stat-num" style="color:var(--brand-3)">{{ question_count }}</div><div class="text-muted">Questions</div></div></div>
-</div>
-
-<h3 class="section-title mb-1">Explore the topics</h3>
-<p class="text-muted mb-4">Everything you need for Selected Topics in Software Engineering.</p>
+<h2 class="h4 section-title mb-1">Topics</h2>
+<p class="text-muted mb-4">The syllabus for Selected Topics in Software Engineering, one quiz per topic.</p>
 <div class="row g-3">
   {% for t in topics %}
     <div class="col-lg-4 col-md-6">
-      <div class="card lift h-100 p-4">
-        <div class="d-flex align-items-center gap-3 mb-2">
-          <div class="topic-icon" style="background:{{ t.color }}"><i class="bi {{ t.icon }}"></i></div>
+      <div class="card topic-card h-100 p-3" style="border-left-color: {{ t.color }};">
+        <div class="d-flex align-items-start gap-3">
+          <div class="topic-icon" style="background: {{ t.color }};"><i class="bi {{ t.icon }}" aria-hidden="true"></i></div>
           <div>
-            <h6 class="mb-0">{{ t.name }}</h6>
-            <small class="text-muted">{{ t.quizzes.count }} quiz{{ t.quizzes.count|pluralize:"zes" }}</small>
+            <h3 class="h6 mb-1">{{ t.name }}</h3>
+            <p class="text-muted small mb-0">{{ t.description|truncatewords:16 }}</p>
           </div>
         </div>
-        <p class="text-muted small mb-0">{{ t.description|truncatewords:18 }}</p>
       </div>
     </div>
   {% empty %}
-    <p class="text-muted">Topics are being prepared...</p>
+    <p class="text-muted">No topics yet. Run <code>python manage.py seed_data</code> to load the question bank.</p>
   {% endfor %}
 </div>
-
-{% if not user.is_authenticated %}
-  <div class="text-center mt-5">
-    <a href="{% url 'register' %}" class="btn-grad btn btn-lg">Create your free account <i class="bi bi-arrow-right"></i></a>
-  </div>
-{% endif %}
 {% endblock %}

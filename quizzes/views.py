@@ -36,9 +36,10 @@ admin_required = _role("ADMIN")
 # Public + auth
 # --------------------------------------------------------------------------- #
 def home(request):
+    # explicit order_by: Meta.ordering is ignored on aggregate (GROUP BY) queries
     topics = Topic.objects.annotate(
         n_quizzes=Count("quizzes", filter=Q(quizzes__is_published=True), distinct=True)
-    )
+    ).order_by("order", "name")
     sample = (
         Question.objects.filter(quiz__is_published=True)
         .select_related("quiz__topic")
@@ -93,7 +94,7 @@ def student_dashboard(request):
         "recent": completed[:5],
         "topics": Topic.objects.annotate(
             n_quizzes=Count("quizzes", filter=Q(quizzes__is_published=True), distinct=True)
-        ),
+        ).order_by("order", "name"),
     }
     return render(request, "quizzes/student_dashboard.html", context)
 

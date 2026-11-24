@@ -1,18 +1,18 @@
 {% extends "quizzes/base.html" %}
 {% block title %}Browse Quizzes - EduHub{% endblock %}
 {% block content %}
-<h3 class="section-title mb-1">Browse all quizzes</h3>
-<p class="text-muted mb-4">Pick a topic and test yourself. Every quiz is instantly graded with explanations.</p>
+<h1 class="h3 section-title mb-1">Quizzes</h1>
+<p class="text-muted mb-4">One quiz per topic. Each is marked as soon as you submit, with explanations.</p>
 
 {% for t in topics %}
   <div class="d-flex align-items-center gap-2 mt-4 mb-3" id="topic-{{ t.pk }}">
     <div class="topic-icon" style="background:{{ t.color }};width:42px;height:42px;font-size:1.2rem;"><i class="bi {{ t.icon }}"></i></div>
-    <h5 class="mb-0">{{ t.name }}</h5>
+    <h2 class="h5 mb-0"><a href="{% url 'topic_detail' t.pk %}" class="text-reset text-decoration-none">{{ t.name }}</a></h2>
   </div>
   <div class="row g-3">
     {% for q in t.published_quizzes %}
       <div class="col-lg-4 col-md-6">
-        <div class="card lift h-100 p-4">
+        <div class="card h-100 p-4">
           <div class="d-flex justify-content-between mb-2">
             <span class="diff-pill bg-{{ q.difficulty_color }}-subtle text-{{ q.difficulty_color }}">{{ q.get_difficulty_display }}</span>
             <small class="text-muted"><i class="bi bi-patch-question"></i> {{ q.question_count }} Q</small>
@@ -21,7 +21,7 @@
           <p class="text-muted small flex-grow-1">{{ q.description|truncatewords:16 }}</p>
           <div class="d-flex justify-content-between align-items-center">
             <small class="text-muted"><i class="bi bi-clock"></i> {{ q.time_limit_minutes }} min</small>
-            <a href="{% url 'quiz_detail' q.pk %}" class="btn-grad btn btn-sm">Start</a>
+            <a href="{% url 'quiz_detail' q.pk %}" class="btn-ink btn btn-sm">Start</a>
           </div>
         </div>
       </div>

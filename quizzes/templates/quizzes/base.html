@@ -4,67 +4,71 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}EduHub - Master Software Engineering{% endblock %}</title>
+  <title>{% block title %}EduHub: Software Engineering quizzes{% endblock %}</title>
+  <meta name="description" content="Timed, auto-graded quizzes on every core Software Engineering topic, with explanations for each answer.">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="{% static 'quizzes/favicon.svg' %}">
   <link href="{% static 'quizzes/style.css' %}" rel="stylesheet">
   {% block extra_head %}{% endblock %}
 </head>
 <body>
-<nav class="navbar navbar-expand-lg eduhub-nav sticky-top">
+{% with url_name=request.resolver_match.url_name %}
+<nav class="navbar navbar-expand-lg eduhub-nav">
   <div class="container">
-    <a class="navbar-brand fs-4" href="{% url 'home' %}"><i class="bi bi-mortarboard-fill"></i> EduHub</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+    <a class="navbar-brand" href="{% url 'home' %}"><span class="mark"><i class="bi bi-journal-check"></i></span>EduHub</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Menu">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="nav">
-      <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
         {% if user.is_authenticated %}
           {% if user.is_student %}
-            <li class="nav-item"><a class="nav-link" href="{% url 'student_dashboard' %}">Dashboard</a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'catalog' %}">Browse</a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'attempt_history' %}">History</a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'leaderboard' %}">Leaderboard</a></li>
+            <li class="nav-item"><a class="nav-link {% if url_name == 'student_dashboard' %}active{% endif %}" href="{% url 'student_dashboard' %}">Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link {% if url_name == 'catalog' %}active{% endif %}" href="{% url 'catalog' %}">Quizzes</a></li>
+            <li class="nav-item"><a class="nav-link {% if url_name == 'attempt_history' %}active{% endif %}" href="{% url 'attempt_history' %}">History</a></li>
+            <li class="nav-item"><a class="nav-link {% if url_name == 'leaderboard' %}active{% endif %}" href="{% url 'leaderboard' %}">Leaderboard</a></li>
           {% elif user.is_lecturer %}
-            <li class="nav-item"><a class="nav-link" href="{% url 'lecturer_dashboard' %}">Dashboard</a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'catalog' %}">Browse</a></li>
+            <li class="nav-item"><a class="nav-link {% if url_name == 'lecturer_dashboard' %}active{% endif %}" href="{% url 'lecturer_dashboard' %}">My quizzes</a></li>
+            <li class="nav-item"><a class="nav-link {% if url_name == 'catalog' %}active{% endif %}" href="{% url 'catalog' %}">All quizzes</a></li>
           {% elif user.is_platform_admin %}
-            <li class="nav-item"><a class="nav-link" href="{% url 'admin_dashboard' %}">Dashboard</a></li>
-            <li class="nav-item"><a class="nav-link" href="/admin/">Django Admin</a></li>
+            <li class="nav-item"><a class="nav-link {% if url_name == 'admin_dashboard' %}active{% endif %}" href="{% url 'admin_dashboard' %}">Overview</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'admin:index' %}">Django admin</a></li>
           {% endif %}
-          <li class="nav-item ms-lg-2 d-flex align-items-center gap-2">
-            <span class="small text-muted">{{ user.get_full_name|default:user.username }}</span>
+          <li class="nav-item ms-lg-3 d-flex align-items-center gap-2 py-2 py-lg-0">
+            <span class="small">{{ user.get_full_name|default:user.username }}</span>
             <span class="role-chip">{{ user.get_role_display }}</span>
           </li>
           <li class="nav-item">
             <form method="post" action="{% url 'logout' %}" class="d-inline ms-lg-2">
-              {% csrf_token %}<button class="btn-ghost btn btn-sm" type="submit">Logout</button>
+              {% csrf_token %}<button class="btn btn-line btn-sm" type="submit">Log out</button>
             </form>
           </li>
         {% else %}
-          <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
-          <li class="nav-item ms-lg-2"><a class="btn-grad btn btn-sm" href="{% url 'register' %}">Get started</a></li>
+          <li class="nav-item"><a class="nav-link {% if url_name == 'login' %}active{% endif %}" href="{% url 'login' %}">Log in</a></li>
+          <li class="nav-item ms-lg-2"><a class="btn btn-ink btn-sm" href="{% url 'register' %}">Create account</a></li>
         {% endif %}
       </ul>
     </div>
   </div>
 </nav>
+{% endwith %}
 
-<main class="container py-4">
-  {% if messages %}
-    {% for message in messages %}
-      <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
-        {{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      </div>
-    {% endfor %}
-  {% endif %}
+<main class="container py-4 py-lg-5">
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+      {{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  {% endfor %}
   {% block content %}{% endblock %}
 </main>
 
-<footer class="container text-center py-4">
-  <small>EduHub &middot; Interactive Software Engineering Quizzes &middot; UniKL ISB46803</small>
+<footer class="container py-4 small d-flex flex-wrap justify-content-between gap-2">
+  <span>EduHub, a quiz platform for Software Engineering students.</span>
+  <a href="https://github.com/Miaoricle/eduhub" class="text-muted">Source on GitHub</a>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

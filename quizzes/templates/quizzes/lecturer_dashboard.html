@@ -3,20 +3,20 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
   <div>
-    <h3 class="mb-0">Lecturer workspace</h3>
-    <span class="text-muted">Build and manage your quizzes.</span>
+    <h1 class="h3 mb-0">Your quizzes</h1>
+    <span class="text-muted">Write questions, publish quizzes, and see how students are doing.</span>
   </div>
-  <a href="{% url 'quiz_create' %}" class="btn-grad btn"><i class="bi bi-plus-lg"></i> New quiz</a>
+  <a href="{% url 'quiz_create' %}" class="btn-ink btn"><i class="bi bi-plus-lg"></i> New quiz</a>
 </div>
 
 <div class="row g-3 mb-4">
-  <div class="col-md-4"><div class="stat-card lift text-center"><div class="stat-num" style="color:var(--brand-1)">{{ total_quizzes }}</div><div class="text-muted small">Your quizzes</div></div></div>
-  <div class="col-md-4"><div class="stat-card lift text-center"><div class="stat-num" style="color:var(--brand-2)">{{ total_attempts }}</div><div class="text-muted small">Total attempts</div></div></div>
-  <div class="col-md-4"><div class="stat-card lift text-center"><div class="stat-num" style="color:var(--brand-3)"><i class="bi bi-mortarboard"></i></div><div class="text-muted small">Keep teaching!</div></div></div>
+  <div class="col-md-4"><div class="stat-card text-center"><div class="stat-num">{{ total_quizzes }}</div><div class="text-muted small">Your quizzes</div></div></div>
+  <div class="col-md-4"><div class="stat-card text-center"><div class="stat-num">{{ total_attempts }}</div><div class="text-muted small">Student attempts</div></div></div>
+  <div class="col-md-4"><div class="stat-card text-center"><div class="stat-num">{{ total_questions }}</div><div class="text-muted small">Questions written</div></div></div>
 </div>
 
 <div class="card p-4">
-  <h5 class="mb-3">Your quizzes</h5>
+  <h2 class="h5 mb-3">Quizzes</h2>
   {% if quizzes %}
     <div class="table-responsive">
       <table class="table align-middle">
@@ -30,8 +30,8 @@
               <td class="text-center">{{ q.n_questions }}</td>
               <td class="text-center">{{ q.n_attempts }}</td>
               <td class="text-end">
-                <a href="{% url 'quiz_questions' q.pk %}" class="btn-ghost btn btn-sm">Questions</a>
-                <a href="{% url 'quiz_edit' q.pk %}" class="btn-ghost btn btn-sm">Edit</a>
+                <a href="{% url 'quiz_questions' q.pk %}" class="btn-line btn btn-sm">Questions</a>
+                <a href="{% url 'quiz_edit' q.pk %}" class="btn-line btn btn-sm">Edit</a>
               </td>
             </tr>
           {% endfor %}
@@ -40,6 +40,30 @@
     </div>
   {% else %}
     <p class="text-muted mb-0">You haven't created any quizzes yet. <a href="{% url 'quiz_create' %}">Create one</a>.</p>
+  {% endif %}
+</div>
+
+<div class="card p-4 mt-4">
+  <h2 class="h5 mb-3">Latest attempts on your quizzes</h2>
+  {% if recent %}
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead><tr><th>Student</th><th>Quiz</th><th>Score</th><th>When</th><th></th></tr></thead>
+        <tbody>
+          {% for a in recent %}
+            <tr>
+              <td>{{ a.student.get_full_name|default:a.student.username }}</td>
+              <td>{{ a.quiz.title|truncatechars:40 }}</td>
+              <td><span class="badge {% if a.passed %}bg-success{% else %}bg-danger{% endif %}">{{ a.percentage }}%</span>{% if a.submitted_late %} <span class="badge bg-warning text-dark">Late</span>{% endif %}</td>
+              <td class="small">{{ a.completed_at|date:"d M, H:i" }}</td>
+              <td class="text-end"><a href="{% url 'quiz_result' a.pk %}" class="btn btn-line btn-sm">Answers</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="text-muted mb-0">No one has taken your quizzes yet.</p>
   {% endif %}
 </div>
 {% endblock %}

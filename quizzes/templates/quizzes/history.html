@@ -15,7 +15,7 @@
               <td><small>{{ a.completed_at|date:"d M Y, h:i A" }}</small></td>
               <td>{{ a.score }}/{{ a.total }} <span class="text-muted">({{ a.percentage }}%)</span></td>
               <td>{% if a.passed %}<span class="badge bg-success">Passed</span>{% else %}<span class="badge bg-danger">Failed</span>{% endif %}{% if a.submitted_late %} <span class="badge bg-warning text-dark">Late</span>{% endif %}</td>
-              <td class="text-end"><a href="{% url 'quiz_result' a.pk %}" class="btn-ghost btn btn-sm">Review</a></td>
+              <td class="text-end"><a href="{% url 'quiz_result' a.pk %}" class="btn-line btn btn-sm">Review</a></td>
             </tr>
           {% endfor %}
         </tbody>
