@@ -10,6 +10,8 @@ relationship types:
     * ASSOCIATION   -> Attempt links a Student (User) and a Quiz
 """
 
+from datetime import timedelta
+
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
@@ -149,8 +151,25 @@ class Choice(models.Model):
         return f"{self.text} {'(correct)' if self.is_correct else ''}"
 
 
+# Extra time allowed after the countdown hits zero, for slow connections.
+SUBMIT_GRACE = timedelta(seconds=30)
+
+
+class AttemptQuerySet(models.QuerySet):
+    def completed(self):
+        """Attempts that were submitted. In-progress ones exist while a student is answering."""
+        return self.filter(completed_at__isnull=False)
+
+    def in_progress(self):
+        return self.filter(completed_at__isnull=True)
+
+
 class Attempt(models.Model):
-    """One student's run through one quiz. ASSOCIATION: student <-> quiz."""
+    """One student's run through one quiz. ASSOCIATION: student <-> quiz.
+
+    Created when the student opens the quiz (so the server knows when they started)
+    and completed when they submit.
+    """
 
     student = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="attempts"
@@ -160,9 +179,29 @@ class Attempt(models.Model):
     total = models.PositiveIntegerField(default=0)
     started_at = models.DateTimeField(default=timezone.now)
     completed_at = models.DateTimeField(null=True, blank=True)
+    submitted_late = models.BooleanField(
+        default=False, help_text="Submitted after the time limit (plus a short grace period)."
+    )
+
+    objects = AttemptQuerySet.as_manager()
 
     class Meta:
         ordering = ["-completed_at", "-started_at"]
+
+    @property
+    def deadline(self):
+        """When the countdown ends, or None for untimed quizzes."""
+        minutes = self.quiz.time_limit_minutes
+        return self.started_at + timedelta(minutes=minutes) if minutes else None
+
+    def seconds_left(self, now=None):
+        if self.deadline is None:
+            return None
+        return max(0, int((self.deadline - (now or timezone.now())).total_seconds()))
+
+    def is_expired(self, now=None):
+        """Past the deadline and the grace period: too late to submit."""
+        return self.deadline is not None and (now or timezone.now()) > self.deadline + SUBMIT_GRACE
 
     @property
     def percentage(self):

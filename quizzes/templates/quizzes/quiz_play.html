@@ -19,7 +19,6 @@
 
     <form id="quizForm" method="post" action="{% url 'quiz_submit' quiz.pk %}">
       {% csrf_token %}
-      <input type="hidden" name="elapsed" id="elapsed" value="0">
 
       {% for q in questions %}
         <div class="q-card card p-4 p-md-5" data-index="{{ forloop.counter0 }}" style="{% if not forloop.first %}display:none{% endif %}">
@@ -93,31 +92,44 @@
   nextBtn.addEventListener('click', () => { if (current < total - 1) { current++; render(); window.scrollTo({top:0,behavior:'smooth'}); } });
   prevBtn.addEventListener('click', () => { if (current > 0) { current--; render(); window.scrollTo({top:0,behavior:'smooth'}); } });
 
-  // Confirm if leaving questions unanswered
-  document.getElementById('quizForm').addEventListener('submit', function (e) {
-    document.getElementById('elapsed').value = elapsed;
+  // Keep picks across a refresh. The attempt (and its clock) lives on the server,
+  // so reloading resumes it; this just restores which options were selected.
+  const store = 'eduhub-attempt-{{ attempt.pk }}';
+  const saved = (() => { try { return JSON.parse(sessionStorage.getItem(store)) || {}; } catch { return {}; } })();
+  cards.forEach(card => card.querySelectorAll('.option').forEach(opt => {
+    const input = opt.querySelector('input');
+    if (saved[input.name] === input.value) { input.checked = true; opt.classList.add('selected'); }
+    opt.addEventListener('click', () => {
+      saved[input.name] = input.value;
+      try { sessionStorage.setItem(store, JSON.stringify(saved)); } catch {}
+    });
+  }));
+
+  const form = document.getElementById('quizForm');
+  form.addEventListener('submit', function (e) {
     if (answeredCount() < total && !confirm(`You answered ${answeredCount()} of ${total}. Submit anyway?`)) {
       e.preventDefault();
+      return;
     }
+    try { sessionStorage.removeItem(store); } catch {}
   });
 
-  // Timer
-  let elapsed = 0;
-  const limit = {{ quiz.time_limit_minutes }} * 60;
+  // Countdown from the server's remaining time. The server decides whether a
+  // submission is late; this only shows the clock and submits at zero.
+  const secondsLeft = {{ seconds_left|default_if_none:"null" }};
   const timeEl = document.getElementById('time');
   const timerPill = document.getElementById('timer');
   function fmt(s){ const m = Math.floor(s/60); const r = s%60; return `${m}:${r<10?'0':''}${r}`; }
-  if (limit > 0 && timeEl) {
-    timeEl.textContent = fmt(limit);
-    setInterval(() => {
-      elapsed++;
-      const left = limit - elapsed;
-      if (left <= 0) { document.getElementById('elapsed').value = elapsed; document.getElementById('quizForm').submit(); return; }
+  if (secondsLeft !== null && timeEl) {
+    const endsAt = Date.now() + secondsLeft * 1000;
+    const tick = () => {
+      const left = Math.max(0, Math.round((endsAt - Date.now()) / 1000));
       timeEl.textContent = fmt(left);
       if (left <= 30) timerPill.classList.add('danger');
-    }, 1000);
-  } else {
-    setInterval(() => elapsed++, 1000);
+      if (left <= 0) { try { sessionStorage.removeItem(store); } catch {} form.submit(); return; }
+      setTimeout(tick, 250);
+    };
+    tick();
   }
 
   render();

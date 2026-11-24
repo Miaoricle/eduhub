@@ -2,13 +2,13 @@
 {% block title %}Leaderboard - EduHub{% endblock %}
 {% block content %}
 <h3 class="section-title mb-1"><i class="bi bi-trophy-fill" style="color:#f59e0b"></i> Leaderboard</h3>
-<p class="text-muted mb-4">Top learners by total points earned across all quizzes.</p>
+<p class="text-muted mb-4">Points are your best score on each quiz added together, so every quiz is worth up to 100. Retaking a quiz can raise your score on it, but can't be repeated for extra points.</p>
 
 <div class="card p-2">
   <table class="table align-middle mb-0">
-    <thead><tr><th style="width:70px" class="text-center">Rank</th><th>Student</th><th class="text-center">Quizzes</th><th class="text-end">Points</th></tr></thead>
+    <thead><tr><th style="width:70px" class="text-center">Rank</th><th>Student</th><th class="text-center">Quizzes</th><th class="text-center">Average</th><th class="text-end">Points</th></tr></thead>
     <tbody>
-      {% for s in students %}
+      {% for row in rows %}{% with s=row.student %}
         <tr>
           <td class="text-center">
             <div class="rank-badge mx-auto {% if forloop.counter == 1 %}rank-1{% elif forloop.counter == 2 %}rank-2{% elif forloop.counter == 3 %}rank-3{% else %}bg-light{% endif %}">
@@ -18,11 +18,12 @@
           <td class="fw-semibold">{{ s.get_full_name|default:s.username }}
             {% if forloop.counter == 1 %}<i class="bi bi-trophy-fill" style="color:#f59e0b"></i>{% endif %}
           </td>
-          <td class="text-center">{{ s.attempts_done }}</td>
-          <td class="text-end fw-bold" style="color:var(--brand-1)">{{ s.total_score }}</td>
-        </tr>
+          <td class="text-center">{{ row.quizzes }}</td>
+          <td class="text-center">{{ row.average }}%</td>
+          <td class="text-end fw-bold" style="color:var(--brand-1)">{{ row.points }}</td>
+        </tr>{% endwith %}
       {% empty %}
-        <tr><td colspan="4" class="text-muted text-center py-4">No scores yet. Be the first on the board!</td></tr>
+        <tr><td colspan="5" class="text-muted text-center py-4">No scores yet. Be the first on the board!</td></tr>
       {% endfor %}
     </tbody>
   </table>

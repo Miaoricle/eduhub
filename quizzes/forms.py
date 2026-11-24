@@ -22,26 +22,26 @@ class BootstrapMixin:
 
 
 class RegistrationForm(BootstrapMixin, UserCreationForm):
-    """Sign up as a Student or a Lecturer."""
+    """Public sign-up creates student accounts only.
+
+    Letting people pick "Lecturer" here would let any student give themselves
+    quiz-authoring rights. Lecturers are promoted by an admin instead.
+    """
 
     first_name = forms.CharField(max_length=150)
     last_name = forms.CharField(max_length=150)
     email = forms.EmailField()
-    role = forms.ChoiceField(
-        choices=[(User.Role.STUDENT, "Student"), (User.Role.LECTURER, "Lecturer")],
-        initial=User.Role.STUDENT,
-    )
 
     class Meta:
         model = User
-        fields = ["username", "first_name", "last_name", "email", "role", "password1", "password2"]
+        fields = ["username", "first_name", "last_name", "email", "password1", "password2"]
 
     def save(self, commit=True):
         user = super().save(commit=False)
         user.first_name = self.cleaned_data["first_name"]
         user.last_name = self.cleaned_data["last_name"]
         user.email = self.cleaned_data["email"]
-        user.role = self.cleaned_data["role"]
+        user.role = User.Role.STUDENT
         if commit:
             user.save()
         return user
@@ -70,3 +70,20 @@ class QuestionForm(BootstrapMixin, forms.Form):
         choices=[("1", "A"), ("2", "B"), ("3", "C"), ("4", "D")],
         label="Correct answer",
     )
+
+    def choice_texts(self):
+        """The four choice boxes in order, stripped (empty string for unused C/D)."""
+        return [(self.cleaned_data.get(f"choice_{i}") or "").strip() for i in range(1, 5)]
+
+    def clean(self):
+        cleaned = super().clean()
+        if self.errors:
+            return cleaned
+        texts = self.choice_texts()
+        correct = int(cleaned["correct"])
+        if not texts[correct - 1]:
+            self.add_error("correct", f"Choice {'ABCD'[correct - 1]} is empty, so it can't be the correct answer.")
+        filled = [t.lower() for t in texts if t]
+        if len(set(filled)) != len(filled):
+            raise forms.ValidationError("Two choices have the same text.")
+        return cleaned

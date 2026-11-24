@@ -127,3 +127,9 @@ AUTH_USER_MODEL = 'quizzes.User'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'home'
+
+# Tests create many users; the default (deliberately slow) hasher would make the suite crawl.
+import sys  # noqa: E402
+
+if "test" in sys.argv:
+    PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]

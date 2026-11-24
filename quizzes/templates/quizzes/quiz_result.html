@@ -10,6 +10,7 @@
         <div class="inner">
           <div class="pct" id="pct" style="color: {% if attempt.passed %}var(--ok){% else %}var(--bad){% endif %};">0%</div>
           <small class="text-muted">{{ attempt.score }}/{{ attempt.total }} correct</small>
+          {% if attempt.submitted_late %}<span class="badge bg-warning text-dark mt-1">Submitted late</span>{% endif %}
         </div>
       </div>
 
