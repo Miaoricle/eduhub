@@ -1,0 +1,73 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}EduHub - Master Software Engineering{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="{% static 'quizzes/style.css' %}" rel="stylesheet">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+<nav class="navbar navbar-expand-lg eduhub-nav sticky-top">
+  <div class="container">
+    <a class="navbar-brand fs-4" href="{% url 'home' %}"><i class="bi bi-mortarboard-fill"></i> EduHub</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+        {% if user.is_authenticated %}
+          {% if user.is_student %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'student_dashboard' %}">Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'catalog' %}">Browse</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'attempt_history' %}">History</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'leaderboard' %}">Leaderboard</a></li>
+          {% elif user.is_lecturer %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'lecturer_dashboard' %}">Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'catalog' %}">Browse</a></li>
+          {% elif user.is_platform_admin %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="/admin/">Django Admin</a></li>
+          {% endif %}
+          <li class="nav-item ms-lg-2 d-flex align-items-center gap-2">
+            <span class="small text-muted">{{ user.get_full_name|default:user.username }}</span>
+            <span class="role-chip">{{ user.get_role_display }}</span>
+          </li>
+          <li class="nav-item">
+            <form method="post" action="{% url 'logout' %}" class="d-inline ms-lg-2">
+              {% csrf_token %}<button class="btn-ghost btn btn-sm" type="submit">Logout</button>
+            </form>
+          </li>
+        {% else %}
+          <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
+          <li class="nav-item ms-lg-2"><a class="btn-grad btn btn-sm" href="{% url 'register' %}">Get started</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<main class="container py-4">
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+        {{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="container text-center py-4">
+  <small>EduHub &middot; Interactive Software Engineering Quizzes &middot; UniKL ISB46803</small>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

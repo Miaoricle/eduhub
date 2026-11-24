@@ -1,0 +1,66 @@
+{% extends "quizzes/base.html" %}
+{% block title %}Admin - EduHub{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <h3 class="mb-0">Platform overview</h3>
+  <a href="/admin/" class="btn-ghost btn"><i class="bi bi-gear"></i> Manage data</a>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-2 col-4"><div class="stat-card lift text-center"><div class="stat-num" style="color:var(--brand-1)">{{ total_students }}</div><div class="text-muted small">Students</div></div></div>
+  <div class="col-md-2 col-4"><div class="stat-card lift text-center"><div class="stat-num" style="color:var(--brand-2)">{{ total_lecturers }}</div><div class="text-muted small">Lecturers</div></div></div>
+  <div class="col-md-2 col-4"><div class="stat-card lift text-center"><div class="stat-num" style="color:var(--brand-3)">{{ total_topics }}</div><div class="text-muted small">Topics</div></div></div>
+  <div class="col-md-2 col-4"><div class="stat-card lift text-center"><div class="stat-num">{{ total_quizzes }}</div><div class="text-muted small">Quizzes</div></div></div>
+  <div class="col-md-2 col-4"><div class="stat-card lift text-center"><div class="stat-num">{{ total_questions }}</div><div class="text-muted small">Questions</div></div></div>
+  <div class="col-md-2 col-4"><div class="stat-card lift text-center"><div class="stat-num" style="color:var(--ok)">{{ total_attempts }}</div><div class="text-muted small">Attempts</div></div></div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-lg-7"><div class="card p-4"><h6 class="text-muted mb-3">Attempts - last 7 days</h6><canvas id="dayChart" height="120"></canvas></div></div>
+  <div class="col-lg-5"><div class="card p-4"><h6 class="text-muted mb-3">Attempts by topic</h6><canvas id="topicChart" height="150"></canvas></div></div>
+</div>
+
+<div class="card p-4">
+  <h6 class="text-muted mb-3">Recent attempts</h6>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle mb-0">
+      <thead><tr><th>Student</th><th>Quiz</th><th>Score</th><th>When</th></tr></thead>
+      <tbody>
+        {% for a in recent %}
+          <tr>
+            <td>{{ a.student.get_full_name|default:a.student.username }}</td>
+            <td>{{ a.quiz.title|truncatechars:36 }}</td>
+            <td><span class="badge rounded-pill {% if a.passed %}bg-success{% else %}bg-danger{% endif %}">{{ a.percentage }}%</span></td>
+            <td class="small">{{ a.completed_at|date:"d M, h:i A" }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="4" class="text-muted">No attempts yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{{ day_labels|json_script:"day-labels" }}
+{{ day_values|json_script:"day-values" }}
+{{ topic_labels|json_script:"topic-labels" }}
+{{ topic_values|json_script:"topic-values" }}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+  const J = id => JSON.parse(document.getElementById(id).textContent);
+  new Chart(document.getElementById('dayChart'), {
+    type: 'line',
+    data: { labels: J('day-labels'), datasets: [{ label: 'Attempts', data: J('day-values'),
+      borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,.14)', fill: true, tension: .35 }] },
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+  });
+  new Chart(document.getElementById('topicChart'), {
+    type: 'bar',
+    data: { labels: J('topic-labels'), datasets: [{ data: J('topic-values'), backgroundColor: '#8b5cf6' }] },
+    options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } }
+  });
+</script>
+{% endblock %}

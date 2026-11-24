@@ -1,0 +1,139 @@
+/* ===========================================================================
+   EduHub - design system
+   A modern indigo/violet theme layered on top of Bootstrap 5.
+   =========================================================================== */
+:root {
+  --brand-1: #6366f1;   /* indigo  */
+  --brand-2: #8b5cf6;   /* violet  */
+  --brand-3: #ec4899;   /* pink    */
+  --grad: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+  --grad-soft: linear-gradient(135deg, rgba(99,102,241,.12), rgba(168,85,247,.12));
+  --ink: #1e2233;
+  --muted: #6b7280;
+  --bg: #f6f7fb;
+  --card: #ffffff;
+  --ok: #22c55e;
+  --bad: #ef4444;
+  --radius: 18px;
+  --shadow: 0 10px 30px rgba(31, 41, 90, .08);
+  --shadow-lg: 0 18px 45px rgba(99, 102, 241, .22);
+}
+
+* { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+h1, h2, h3, h4, h5, .display-6, .navbar-brand { font-family: 'Poppins', sans-serif; }
+
+body { background: var(--bg); color: var(--ink); }
+
+/* ---------- Navbar ---------- */
+.navbar.eduhub-nav {
+  background: rgba(255, 255, 255, .8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(99, 102, 241, .12);
+}
+.eduhub-nav .navbar-brand {
+  font-weight: 700;
+  background: var(--grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.eduhub-nav .nav-link { color: var(--ink); font-weight: 500; border-radius: 10px; padding: .4rem .8rem; }
+.eduhub-nav .nav-link:hover { background: var(--grad-soft); color: var(--brand-1); }
+.role-chip {
+  background: var(--grad); color: #fff; font-size: .7rem; font-weight: 600;
+  padding: .15rem .55rem; border-radius: 999px; letter-spacing: .3px;
+}
+
+/* ---------- Buttons ---------- */
+.btn-grad {
+  background: var(--grad); color: #fff; border: none; border-radius: 999px;
+  font-weight: 600; padding: .6rem 1.5rem; box-shadow: var(--shadow-lg);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.btn-grad:hover { transform: translateY(-2px); color: #fff; box-shadow: 0 22px 50px rgba(99,102,241,.34); }
+.btn-ghost {
+  background: #fff; border: 1.5px solid rgba(99,102,241,.25); color: var(--brand-1);
+  border-radius: 999px; font-weight: 600; padding: .55rem 1.3rem;
+}
+.btn-ghost:hover { background: var(--grad-soft); color: var(--brand-1); }
+
+/* ---------- Cards ---------- */
+.card { border: none; border-radius: var(--radius); box-shadow: var(--shadow); background: var(--card); }
+.lift { transition: transform .18s ease, box-shadow .18s ease; }
+.lift:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+
+/* ---------- Hero ---------- */
+.hero {
+  background: var(--grad); color: #fff; border-radius: 28px; overflow: hidden;
+  position: relative; box-shadow: var(--shadow-lg);
+}
+.hero::after {
+  content: ""; position: absolute; right: -60px; top: -60px; width: 260px; height: 260px;
+  background: radial-gradient(circle, rgba(255,255,255,.25), transparent 70%); border-radius: 50%;
+}
+.hero .blob {
+  position: absolute; left: -40px; bottom: -80px; width: 220px; height: 220px;
+  background: radial-gradient(circle, rgba(236,72,153,.35), transparent 70%); border-radius: 50%;
+}
+
+/* ---------- Topic / quiz tiles ---------- */
+.topic-icon {
+  width: 54px; height: 54px; border-radius: 14px; display: grid; place-items: center;
+  font-size: 1.5rem; color: #fff;
+}
+.stat-card { border-radius: var(--radius); padding: 1.1rem 1.25rem; background: var(--card); box-shadow: var(--shadow); }
+.stat-num { font-size: 1.9rem; font-weight: 700; line-height: 1; font-family: 'Poppins', sans-serif; }
+.diff-pill { font-size: .72rem; font-weight: 600; padding: .2rem .6rem; border-radius: 999px; }
+
+/* ---------- Quiz player ---------- */
+.quiz-progress { height: 8px; border-radius: 999px; background: #e9ebf5; overflow: hidden; }
+.quiz-progress > span { display: block; height: 100%; background: var(--grad); width: 0; transition: width .3s ease; }
+.timer-pill {
+  background: #fff; border: 1.5px solid rgba(99,102,241,.2); color: var(--brand-1);
+  border-radius: 999px; padding: .35rem .9rem; font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.timer-pill.danger { color: var(--bad); border-color: rgba(239,68,68,.4); animation: pulse 1s infinite; }
+@keyframes pulse { 50% { opacity: .55; } }
+
+.q-card { animation: fadeUp .35s ease; }
+.option {
+  display: flex; align-items: center; gap: .8rem; width: 100%; text-align: left;
+  background: #fff; border: 2px solid #e9ebf5; border-radius: 14px; padding: .9rem 1.1rem;
+  margin-bottom: .7rem; cursor: pointer; transition: all .15s ease; font-weight: 500;
+}
+.option:hover { border-color: var(--brand-2); transform: translateX(3px); }
+.option .badge-letter {
+  width: 30px; height: 30px; min-width: 30px; border-radius: 9px; display: grid; place-items: center;
+  background: var(--grad-soft); color: var(--brand-1); font-weight: 700;
+}
+.option.selected { border-color: var(--brand-1); background: var(--grad-soft); box-shadow: 0 6px 18px rgba(99,102,241,.18); }
+.option.selected .badge-letter { background: var(--grad); color: #fff; }
+.option input { display: none; }
+
+/* ---------- Result ring ---------- */
+.score-ring {
+  width: 180px; height: 180px; border-radius: 50%; display: grid; place-items: center;
+  background: conic-gradient(var(--ring-color) calc(var(--p) * 1%), #e9ebf5 0);
+  margin: 0 auto; transition: background 1s ease;
+}
+.score-ring .inner {
+  width: 142px; height: 142px; border-radius: 50%; background: #fff; display: grid; place-items: center;
+  flex-direction: column; text-align: center; box-shadow: inset 0 0 0 1px rgba(0,0,0,.03);
+}
+.score-ring .pct { font-size: 2.4rem; font-weight: 800; font-family: 'Poppins', sans-serif; }
+
+.review-q { border-left: 4px solid #e9ebf5; }
+.review-q.correct { border-color: var(--ok); }
+.review-q.wrong { border-color: var(--bad); }
+.opt-line { padding: .45rem .7rem; border-radius: 10px; }
+.opt-line.is-correct { background: rgba(34,197,94,.12); color: #15803d; font-weight: 600; }
+.opt-line.is-chosen-wrong { background: rgba(239,68,68,.12); color: #b91c1c; font-weight: 600; }
+
+/* ---------- Misc ---------- */
+.rank-badge { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; }
+.rank-1 { background: #fde68a; } .rank-2 { background: #e5e7eb; } .rank-3 { background: #fcd9b6; }
+.section-title { font-weight: 700; }
+footer { color: var(--muted); }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.fade-up { animation: fadeUp .4s ease both; }

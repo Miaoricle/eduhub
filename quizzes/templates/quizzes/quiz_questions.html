@@ -1,0 +1,46 @@
+{% extends "quizzes/base.html" %}
+{% block title %}{{ quiz.title }} - Questions{% endblock %}
+{% block content %}
+<a href="{% url 'lecturer_dashboard' %}" class="text-decoration-none small">&larr; Back to workspace</a>
+<div class="d-flex justify-content-between align-items-center my-3 flex-wrap gap-2">
+  <div>
+    <h3 class="mb-0">{{ quiz.title }}</h3>
+    <span class="text-muted">{{ quiz.question_count }} question{{ quiz.question_count|pluralize }} ·
+      <span class="diff-pill bg-{{ quiz.difficulty_color }}-subtle text-{{ quiz.difficulty_color }}">{{ quiz.get_difficulty_display }}</span></span>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'question_add' quiz.pk %}" class="btn-grad btn"><i class="bi bi-plus-lg"></i> Add question</a>
+    <a href="{% url 'quiz_detail' quiz.pk %}" class="btn-ghost btn">Preview</a>
+  </div>
+</div>
+
+{% for q in quiz.questions.all %}
+  <div class="card p-4 mb-3">
+    <div class="d-flex justify-content-between">
+      <h6 class="mb-2">{{ forloop.counter }}. {{ q.text }}</h6>
+      {% if q.subtopic %}<span class="diff-pill bg-light text-muted">{{ q.subtopic }}</span>{% endif %}
+    </div>
+    {% for c in q.choices.all %}
+      <div class="opt-line mb-1 {% if c.is_correct %}is-correct{% endif %}">
+        {{ c.text }} {% if c.is_correct %}<i class="bi bi-check-circle-fill float-end"></i>{% endif %}
+      </div>
+    {% endfor %}
+    <div class="d-flex gap-2 mt-3">
+      <a href="{% url 'question_edit' q.pk %}" class="btn-ghost btn btn-sm">
+        <i class="bi bi-pencil"></i> Edit
+      </a>
+      <form method="post" action="{% url 'question_delete' q.pk %}"
+            onsubmit="return confirm('Delete this question? This cannot be undone.');">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+          <i class="bi bi-trash"></i> Delete
+        </button>
+      </form>
+    </div>
+  </div>
+{% empty %}
+  <div class="card p-5 text-center text-muted">
+    No questions yet. <a href="{% url 'question_add' quiz.pk %}">Add your first question</a>.
+  </div>
+{% endfor %}
+{% endblock %}

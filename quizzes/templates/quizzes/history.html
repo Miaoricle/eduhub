@@ -1,0 +1,28 @@
+{% extends "quizzes/base.html" %}
+{% block title %}My History - EduHub{% endblock %}
+{% block content %}
+<h3 class="section-title mb-3">My quiz history</h3>
+<div class="card p-4">
+  {% if attempts %}
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead><tr><th>Quiz</th><th>Topic</th><th>Date</th><th>Score</th><th>Result</th><th></th></tr></thead>
+        <tbody>
+          {% for a in attempts %}
+            <tr>
+              <td class="fw-semibold">{{ a.quiz.title }}</td>
+              <td><small class="text-muted">{{ a.quiz.topic.name }}</small></td>
+              <td><small>{{ a.completed_at|date:"d M Y, h:i A" }}</small></td>
+              <td>{{ a.score }}/{{ a.total }} <span class="text-muted">({{ a.percentage }}%)</span></td>
+              <td>{% if a.passed %}<span class="badge bg-success">Passed</span>{% else %}<span class="badge bg-danger">Failed</span>{% endif %}</td>
+              <td class="text-end"><a href="{% url 'quiz_result' a.pk %}" class="btn-ghost btn btn-sm">Review</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="text-muted mb-0">No attempts yet. <a href="{% url 'catalog' %}">Take a quiz</a> to get started.</p>
+  {% endif %}
+</div>
+{% endblock %}

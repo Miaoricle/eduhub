@@ -1,0 +1,126 @@
+{% extends "quizzes/base.html" %}
+{% block title %}{{ quiz.title }} - In progress{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h5 class="mb-0">{{ quiz.title }}</h5>
+      {% if quiz.time_limit_minutes %}
+        <span class="timer-pill" id="timer"><i class="bi bi-stopwatch"></i> <span id="time">--:--</span></span>
+      {% endif %}
+    </div>
+
+    <div class="d-flex justify-content-between small text-muted mb-1">
+      <span>Question <strong id="curNum">1</strong> of {{ questions|length }}</span>
+      <span><span id="answered">0</span>/{{ questions|length }} answered</span>
+    </div>
+    <div class="quiz-progress mb-4"><span id="bar"></span></div>
+
+    <form id="quizForm" method="post" action="{% url 'quiz_submit' quiz.pk %}">
+      {% csrf_token %}
+      <input type="hidden" name="elapsed" id="elapsed" value="0">
+
+      {% for q in questions %}
+        <div class="q-card card p-4 p-md-5" data-index="{{ forloop.counter0 }}" style="{% if not forloop.first %}display:none{% endif %}">
+          {% if q.subtopic %}<div class="small fw-semibold mb-1" style="color:var(--brand-1)">{{ q.subtopic }}</div>{% endif %}
+          <h5 class="mb-4">{{ forloop.counter }}. {{ q.text }}</h5>
+          {% for c in q.choices.all %}
+            <label class="option" data-qid="{{ q.id }}">
+              <input type="radio" name="q{{ q.id }}" value="{{ c.id }}">
+              <span class="badge-letter"></span>
+              <span>{{ c.text }}</span>
+            </label>
+          {% endfor %}
+        </div>
+      {% endfor %}
+
+      <div class="d-flex justify-content-between mt-4">
+        <button type="button" class="btn-ghost btn" id="prevBtn" disabled><i class="bi bi-arrow-left"></i> Back</button>
+        <button type="button" class="btn-grad btn" id="nextBtn">Next <i class="bi bi-arrow-right"></i></button>
+        <button type="submit" class="btn-grad btn" id="submitBtn" style="display:none"><i class="bi bi-check2-circle"></i> Submit quiz</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  const cards = Array.from(document.querySelectorAll('.q-card'));
+  const total = cards.length;
+  let current = 0;
+
+  // Assign A/B/C/D letters per question
+  cards.forEach(card => {
+    card.querySelectorAll('.option .badge-letter').forEach((b, i) => b.textContent = String.fromCharCode(65 + i));
+  });
+
+  const bar = document.getElementById('bar');
+  const curNum = document.getElementById('curNum');
+  const answeredEl = document.getElementById('answered');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const submitBtn = document.getElementById('submitBtn');
+
+  function answeredCount() {
+    return cards.filter(c => c.querySelector('input:checked')).length;
+  }
+  function render() {
+    cards.forEach((c, i) => c.style.display = i === current ? 'block' : 'none');
+    curNum.textContent = current + 1;
+    bar.style.width = ((current + 1) / total * 100) + '%';
+    answeredEl.textContent = answeredCount();
+    prevBtn.disabled = current === 0;
+    const last = current === total - 1;
+    nextBtn.style.display = last ? 'none' : 'inline-flex';
+    submitBtn.style.display = last ? 'inline-flex' : 'none';
+  }
+
+  // Option selection visuals
+  document.querySelectorAll('.q-card').forEach(card => {
+    card.querySelectorAll('.option').forEach(opt => {
+      opt.addEventListener('click', () => {
+        card.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+        opt.classList.add('selected');
+        opt.querySelector('input').checked = true;
+        answeredEl.textContent = answeredCount();
+      });
+    });
+  });
+
+  nextBtn.addEventListener('click', () => { if (current < total - 1) { current++; render(); window.scrollTo({top:0,behavior:'smooth'}); } });
+  prevBtn.addEventListener('click', () => { if (current > 0) { current--; render(); window.scrollTo({top:0,behavior:'smooth'}); } });
+
+  // Confirm if leaving questions unanswered
+  document.getElementById('quizForm').addEventListener('submit', function (e) {
+    document.getElementById('elapsed').value = elapsed;
+    if (answeredCount() < total && !confirm(`You answered ${answeredCount()} of ${total}. Submit anyway?`)) {
+      e.preventDefault();
+    }
+  });
+
+  // Timer
+  let elapsed = 0;
+  const limit = {{ quiz.time_limit_minutes }} * 60;
+  const timeEl = document.getElementById('time');
+  const timerPill = document.getElementById('timer');
+  function fmt(s){ const m = Math.floor(s/60); const r = s%60; return `${m}:${r<10?'0':''}${r}`; }
+  if (limit > 0 && timeEl) {
+    timeEl.textContent = fmt(limit);
+    setInterval(() => {
+      elapsed++;
+      const left = limit - elapsed;
+      if (left <= 0) { document.getElementById('elapsed').value = elapsed; document.getElementById('quizForm').submit(); return; }
+      timeEl.textContent = fmt(left);
+      if (left <= 30) timerPill.classList.add('danger');
+    }, 1000);
+  } else {
+    setInterval(() => elapsed++, 1000);
+  }
+
+  render();
+})();
+</script>
+{% endblock %}
